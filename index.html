@@ -1,0 +1,1587 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#8B0000" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <title>Zodiac Candy Hunt</title>
+    <style>
+      :root {
+        --red-deep: #6b0000;
+        --red: #b22222;
+        --red-bright: #d42020;
+        --red-soft: #8b0000;
+        --gold: #ffd700;
+        --gold-dim: #d4af37;
+        --cream: #fff7e6;
+        --ink: #2a0000;
+      }
+      * {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+          Arial, sans-serif;
+        background: radial-gradient(
+          circle at 50% 0%,
+          var(--red) 0%,
+          var(--red-deep) 70%
+        );
+        color: var(--cream);
+        min-height: 100vh;
+        min-height: 100dvh;
+        -webkit-font-smoothing: antialiased;
+      }
+      .app {
+        max-width: 720px;
+        margin: 0 auto;
+        padding: max(18px, env(safe-area-inset-top)) 16px
+          max(18px, env(safe-area-inset-bottom));
+      }
+      header {
+        text-align: center;
+        margin-bottom: 18px;
+      }
+      h1 {
+        margin: 0;
+        font-size: 1.55rem;
+        letter-spacing: 0.5px;
+        color: var(--gold);
+        text-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
+        -webkit-user-select: none;
+        user-select: none;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+      }
+      @media (min-width: 480px) {
+        .grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+      .tile {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 18px 10px 14px;
+        border-radius: 16px;
+        border: 2px solid var(--gold-dim);
+        background: linear-gradient(
+          160deg,
+          rgba(255, 255, 255, 0.1),
+          rgba(0, 0, 0, 0.18)
+        );
+        color: var(--cream);
+        font-family: inherit;
+        font-size: 1rem;
+        cursor: pointer;
+        transition:
+          transform 0.12s ease,
+          box-shadow 0.12s ease,
+          opacity 0.2s ease;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+        -webkit-user-select: none;
+        user-select: none;
+      }
+      .tile:active {
+        transform: scale(0.96);
+      }
+      .tile .emoji {
+        font-size: 2rem;
+        line-height: 1;
+      }
+      .tile .name {
+        font-size: 0.9rem;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+      }
+      .tile.done {
+        opacity: 0.55;
+        border-color: rgba(255, 215, 0, 0.4);
+        background: linear-gradient(
+          160deg,
+          rgba(0, 0, 0, 0.35),
+          rgba(0, 0, 0, 0.5)
+        );
+      }
+      .tile.done .name {
+        text-decoration: line-through;
+        text-decoration-color: var(--gold);
+      }
+      .tile .sign {
+        position: absolute;
+        right: 10px;
+        bottom: 7px;
+        font-size: 1.15rem;
+        font-weight: 800;
+        line-height: 1;
+        color: var(--gold);
+        opacity: 0.8;
+        pointer-events: none;
+      }
+      .check {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        width: 26px;
+        height: 26px;
+        border-radius: 8px;
+        border: 2px solid var(--gold-dim);
+        background: rgba(0, 0, 0, 0.25);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: transparent;
+        font-size: 0.9rem;
+        font-weight: 700;
+        transition:
+          background 0.15s ease,
+          color 0.15s ease;
+      }
+      .tile.done .check {
+        background: var(--gold);
+        border-color: var(--gold);
+        color: var(--red-deep);
+      }
+      .view {
+        display: none;
+      }
+      .view.active {
+        display: block;
+      }
+
+      .detail-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+      .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(0, 0, 0, 0.25);
+        border: 1px solid var(--gold-dim);
+        color: var(--gold);
+        padding: 9px 16px;
+        border-radius: 20px;
+        font-family: inherit;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .back-btn:active {
+        background: rgba(255, 215, 0, 0.15);
+      }
+      .detail-emoji {
+        font-size: 3rem;
+        text-align: center;
+        margin: 4px 0 2px;
+      }
+      .detail-title {
+        text-align: center;
+        color: var(--gold);
+        margin: 0 0 18px;
+        font-size: 1.5rem;
+      }
+      .content-box {
+        min-height: 220px;
+        border: 2px dashed rgba(255, 215, 0, 0.45);
+        border-radius: 16px;
+        padding: 20px;
+        background: rgba(0, 0, 0, 0.18);
+        color: rgba(255, 247, 230, 0.85);
+        line-height: 1.55;
+        font-size: 0.98rem;
+        white-space: pre-wrap;
+      }
+      .content-box.empty {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        color: rgba(255, 247, 230, 0.45);
+        font-style: italic;
+      }
+      .content-text {
+        margin: 0;
+      }
+      .clue-emoji {
+        font-size: 5rem;
+        line-height: 1;
+        text-align: center;
+        margin: 24px 0;
+      }
+      .clue-image {
+        display: block;
+        width: 100%;
+        max-height: 55vh;
+        object-fit: contain;
+        border-radius: 12px;
+        margin: 16px 0;
+        background: rgba(0, 0, 0, 0.25);
+      }
+      .question {
+        margin: 16px 0 10px;
+        font-weight: 600;
+        color: var(--cream);
+      }
+      .answer-form {
+        display: flex;
+        gap: 8px;
+      }
+      .answer-input {
+        flex: 1 1 auto;
+        min-width: 0;
+        padding: 12px 14px;
+        border-radius: 12px;
+        border: 2px solid var(--gold-dim);
+        background: rgba(0, 0, 0, 0.3);
+        color: var(--cream);
+        font-family: inherit;
+        font-size: 1rem;
+      }
+      .answer-input:focus {
+        outline: none;
+        border-color: var(--gold);
+      }
+      .answer-input:disabled {
+        opacity: 0.6;
+      }
+      .submit-btn {
+        flex: 0 0 auto;
+        padding: 12px 18px;
+        border-radius: 12px;
+        border: none;
+        background: var(--gold);
+        color: var(--red-deep);
+        font-family: inherit;
+        font-size: 0.95rem;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .submit-btn:active {
+        opacity: 0.85;
+      }
+      .submit-btn:disabled {
+        opacity: 0.5;
+        cursor: default;
+      }
+      .feedback {
+        margin-top: 10px;
+        font-size: 0.9rem;
+        min-height: 1.2em;
+      }
+      .feedback.wrong {
+        color: #ffb3b3;
+      }
+      .reveal {
+        margin-top: 14px;
+        padding: 14px 16px;
+        border-radius: 12px;
+        background: rgba(255, 215, 0, 0.12);
+        border: 1px solid var(--gold);
+        color: var(--gold);
+        font-weight: 700;
+        font-size: 1.05rem;
+        text-align: center;
+      }
+      .slider-status {
+        margin: 0 0 14px;
+        font-size: 0.9rem;
+        color: rgba(255, 247, 230, 0.8);
+        text-align: center;
+      }
+      .slider-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        max-width: 288px;
+        margin: 0 auto;
+        touch-action: manipulation;
+      }
+      .slider-cell {
+        position: relative;
+        aspect-ratio: 1 / 1;
+        border-radius: 12px;
+        overflow: hidden;
+        background-color: rgba(0, 0, 0, 0.25);
+        background-size: cover;
+        background-position: center;
+      }
+      .slider-tile {
+        position: absolute;
+        inset: 0;
+        padding: 0;
+        border-radius: 12px;
+        border: 2px solid var(--gold-dim);
+        background: linear-gradient(160deg, #8a1a1a, #420606);
+        color: var(--gold);
+        font-family: inherit;
+        font-size: 1.6rem;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .slider-tile:active {
+        transform: scale(0.95);
+      }
+      .scratch-ticket {
+        display: flex;
+        border-radius: 16px;
+        overflow: hidden;
+        background:
+          repeating-linear-gradient(
+            45deg,
+            rgba(0, 0, 0, 0.03) 0 6px,
+            transparent 6px 12px
+          ),
+          #fdf6e3;
+        border: 4px solid #f2913a;
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
+        color: #23211f;
+      }
+      .ticket-main {
+        flex: 1 1 auto;
+        min-width: 0;
+        padding: 10px 8px 10px 10px;
+        display: flex;
+        flex-direction: column;
+      }
+      .ticket-rail {
+        flex: 0 0 30px;
+        background: #ffffff;
+        border-left: 2px solid #23211f;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 6px 0;
+        gap: 6px;
+      }
+      .rail-number {
+        writing-mode: vertical-rl;
+        transform: rotate(180deg);
+        font-size: 0.48rem;
+        letter-spacing: 1px;
+        font-weight: 700;
+      }
+      .rail-barcode {
+        width: 16px;
+        flex: 1 1 auto;
+        min-height: 90px;
+        background-image: repeating-linear-gradient(
+          90deg,
+          #23211f 0 2px,
+          transparent 2px 4px,
+          #23211f 4px 5px,
+          transparent 5px 8px,
+          #23211f 8px 11px,
+          transparent 11px 13px
+        );
+      }
+      .ticket-top {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding-bottom: 6px;
+        border-bottom: 2px dashed rgba(35, 33, 31, 0.35);
+      }
+      .ticket-logo {
+        flex: 0 0 auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-size: 0.46rem;
+        font-weight: 800;
+        line-height: 1.05;
+        text-align: center;
+      }
+      .logo-rainbow {
+        width: 34px;
+        height: 8px;
+        border-radius: 4px;
+        margin-bottom: 3px;
+        background: linear-gradient(
+          90deg,
+          #e23b3b,
+          #f2913a,
+          #ffd700,
+          #4caf50,
+          #2f6fd0,
+          #8e44ad
+        );
+      }
+      .ticket-prize {
+        flex: 1 1 auto;
+        text-align: center;
+        min-width: 0;
+      }
+      .prize-line {
+        display: block;
+        font-size: 0.5rem;
+        font-weight: 800;
+        letter-spacing: 1px;
+        color: #2f6fd0;
+      }
+      .prize-amount {
+        display: block;
+        font-size: 1.3rem;
+        font-weight: 900;
+        line-height: 1;
+        color: #e23b3b;
+        text-shadow: 1.5px 1.5px 0 #ffd700;
+      }
+      .ticket-price {
+        flex: 0 0 auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .price-badge {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: #23211f;
+        color: #fff;
+        font-size: 0.85rem;
+        font-weight: 900;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .ticket-number {
+        font-size: 0.48rem;
+        font-weight: 700;
+        margin-top: 2px;
+      }
+      .ticket-title {
+        align-self: center;
+        margin: 6px 0 2px;
+        padding: 2px 14px 3px;
+        font-size: 1.15rem;
+        font-weight: 900;
+        letter-spacing: 1px;
+        color: #f2913a;
+        -webkit-text-stroke: 1.5px #23211f;
+        text-shadow: 2px 2px 0 #ffd700;
+        background: #fff;
+        border: 3px solid #23211f;
+        border-radius: 999px;
+        transform: rotate(-2deg);
+        white-space: nowrap;
+      }
+      .ticket-body {
+        position: relative;
+        margin-top: 4px;
+      }
+      .game-label {
+        display: inline-block;
+        margin-left: 4px;
+        padding: 2px 8px;
+        background: #23211f;
+        color: #ffd700;
+        font-size: 0.52rem;
+        font-weight: 800;
+        letter-spacing: 1.5px;
+        border-radius: 6px 6px 0 0;
+      }
+      .ticket-art {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        justify-content: center;
+        margin-bottom: -22px;
+        pointer-events: none;
+      }
+      .ticket-art svg {
+        width: 58%;
+        max-width: 190px;
+        height: auto;
+        display: block;
+      }
+      .scratch-pad {
+        position: relative;
+        z-index: 2;
+        border-radius: 10px;
+        overflow: hidden;
+        background: rgba(0, 0, 0, 0.15);
+        border: 4px solid #f2913a;
+        outline: 3px solid #23211f;
+        touch-action: none;
+        -webkit-user-select: none;
+        user-select: none;
+      }
+      .scratch-img {
+        display: block;
+        width: 100%;
+        height: 210px;
+        object-fit: cover;
+        object-position: center;
+        pointer-events: none;
+        -webkit-user-drag: none;
+      }
+      .scratch-canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        touch-action: none;
+        cursor: crosshair;
+      }
+      .ticket-foot {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 8px;
+        padding-top: 8px;
+        border-top: 2px dashed rgba(35, 33, 31, 0.35);
+      }
+      .foot-left {
+        flex: 0 0 auto;
+        font-size: 0.48rem;
+        font-weight: 700;
+        line-height: 1.15;
+        text-align: center;
+      }
+      .foot-right {
+        flex: 1 1 auto;
+        font-size: 0.58rem;
+        font-weight: 700;
+        text-align: center;
+      }
+      .foot-symbol {
+        display: inline-flex;
+        width: 16px;
+        height: 16px;
+        margin: 0 2px;
+        border-radius: 4px;
+        background: #ffd700;
+        border: 2px solid #23211f;
+        color: #23211f;
+        font-size: 0.6rem;
+        font-weight: 900;
+        align-items: center;
+        justify-content: center;
+        vertical-align: middle;
+      }
+      .fudge-hint {
+        font-size: 1.05rem;
+        font-weight: 800;
+        color: var(--gold);
+        text-align: center;
+        margin-bottom: 6px;
+      }
+      .fudge-progress {
+        text-align: center;
+        font-size: 0.8rem;
+        color: rgba(255, 247, 230, 0.7);
+        margin-bottom: 12px;
+      }
+      .fudge-answer {
+        margin-top: 14px;
+        text-align: center;
+        font-weight: 800;
+        font-size: 1.1rem;
+        color: var(--gold);
+      }
+      .fudge-bonus {
+        margin-top: 6px;
+        text-align: center;
+        font-weight: 700;
+        font-size: 0.95rem;
+        color: var(--cream);
+      }
+      .fudge-gallery {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin-top: 14px;
+      }
+      .fudge-card {
+        border-radius: 12px;
+        overflow: hidden;
+        border: 2px solid var(--gold-dim);
+        background: rgba(0, 0, 0, 0.25);
+      }
+      .fudge-card img {
+        display: block;
+        width: 100%;
+        height: 120px;
+        object-fit: cover;
+      }
+      .fudge-name {
+        text-align: center;
+        padding: 6px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: var(--gold);
+      }
+      .bonus-btn {
+        display: block;
+        width: 100%;
+        max-width: 320px;
+        margin: 18px auto 0;
+        padding: 14px;
+        border-radius: 16px;
+        border: 2px solid var(--gold);
+        background: linear-gradient(160deg, #b8860b, #7a4f00);
+        color: #fff;
+        font-family: inherit;
+        font-size: 1rem;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+        cursor: pointer;
+      }
+      .bonus-btn:active {
+        transform: scale(0.98);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <section id="mainView" class="view active">
+        <header>
+          <h1>Zodiac Candy Hunt</h1>
+        </header>
+        <div class="grid" id="grid"></div>
+        <button id="bonusBtn" class="bonus-btn" style="display: none">
+          Bonus!
+        </button>
+      </section>
+
+      <section id="detailView" class="view">
+        <div class="detail-top">
+          <button class="back-btn" id="backBtn">&#8592; Back</button>
+          <span></span>
+        </div>
+        <div class="detail-emoji" id="detailEmoji"></div>
+        <h2 class="detail-title" id="detailTitle"></h2>
+        <div class="content-box empty" id="contentBox"></div>
+      </section>
+    </div>
+
+    <script>
+      var ZODIAC = [
+        {
+          id: "rat",
+          emoji: "\uD83D\uDC00",
+          name: "Rat",
+          content:
+            "I glow beside you when the day is done,\nA little yellow moon when there\u2019s no sun.\nNo hand is needed to make me shine,\nJust speak a few words, and the choice is mine.",
+        },
+        {
+          id: "ox",
+          emoji: "\uD83D\uDC02",
+          name: "Ox",
+          image: "images/ox-hint.png",
+          question: "What country did Chess find this fudge in?",
+          answer: "singapore",
+          reveal: "Check inside Chess' locker!",
+        },
+        {
+          id: "tiger",
+          emoji: "\uD83D\uDC2F",
+          name: "Tiger",
+          image: "images/tiger-hint.png",
+          question: "Where does this little tiger like to hide?",
+        },
+        {
+          id: "rabbit",
+          emoji: "\uD83D\uDC30",
+          name: "Rabbit",
+          content: "Go post this letter \u2709\uFE0F (Not the outside mailbox)",
+        },
+        {
+          id: "dragon",
+          emoji: "\uD83D\uDC32",
+          name: "Dragon",
+          image: "images/dragon-hint.png",
+        },
+        {
+          id: "snake",
+          emoji: "\uD83D\uDC0D",
+          name: "Snake",
+          image: "images/snake-hint.png",
+          scratch: true,
+        },
+        {
+          id: "horse",
+          emoji: "\uD83D\uDC34",
+          name: "Horse",
+          image: "images/horse-hint.png",
+          question: "Where did Chess hide me?",
+        },
+        { id: "goat", emoji: "\uD83D\uDC10", name: "Goat", content: "1245" },
+        {
+          id: "monkey",
+          emoji: "\uD83D\uDC35",
+          name: "Monkey",
+          content: "Make bedroom cooler in summer before sleeping.",
+        },
+        {
+          id: "rooster",
+          emoji: "\uD83D\uDC14",
+          name: "Rooster",
+          puzzle: "slider",
+          reveal: "Check Bill gym bag",
+        },
+        { id: "dog", emoji: "\uD83D\uDC36", name: "Dog", fudge: true },
+        {
+          id: "pig",
+          emoji: "\uD83D\uDC37",
+          name: "Pig",
+          content: "Let in the sunlight",
+        },
+      ];
+
+      var SIGNS = [
+        "+",
+        "\u2212",
+        "\u2212",
+        "\u2212",
+        "+",
+        "+",
+        "+",
+        "+",
+        "+",
+        "\u2212",
+        "+",
+        "\u2212",
+      ];
+      ZODIAC.forEach(function (a, i) {
+        a.sign = SIGNS[i];
+      });
+
+      var STORAGE_KEY = "zodiac-hunt-progress-v1";
+      var state = { done: {}, solved: {}, fudge: [] };
+
+      function loadState() {
+        try {
+          var raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) {
+            var parsed = JSON.parse(raw);
+            if (parsed && typeof parsed === "object") {
+              if (parsed.done) state.done = parsed.done;
+              if (parsed.solved) state.solved = parsed.solved;
+              if (parsed.fudge) state.fudge = parsed.fudge;
+            }
+          }
+        } catch (e) {
+          state = { done: {}, solved: {}, fudge: [] };
+        }
+      }
+
+      function saveState() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch (e) {}
+      }
+
+      function isDone(id) {
+        return !!state.done[id];
+      }
+
+      function toggleDone(id) {
+        if (state.done[id]) {
+          delete state.done[id];
+        } else {
+          state.done[id] = true;
+        }
+        saveState();
+        renderGrid();
+        renderDetail(id);
+      }
+
+      function renderGrid() {
+        var grid = document.getElementById("grid");
+        grid.innerHTML = "";
+        ZODIAC.forEach(function (animal) {
+          var done = isDone(animal.id);
+          var tile = document.createElement("div");
+          tile.className = "tile" + (done ? " done" : "");
+          tile.setAttribute("role", "button");
+          tile.setAttribute("tabindex", "0");
+          tile.setAttribute(
+            "aria-label",
+            animal.name + (done ? " (done)" : ""),
+          );
+
+          var check = document.createElement("span");
+          check.className = "check";
+          check.textContent = "\u2713";
+          check.setAttribute("aria-label", "Toggle done");
+          check.addEventListener("click", function (ev) {
+            ev.stopPropagation();
+            toggleDone(animal.id);
+          });
+
+          var emoji = document.createElement("span");
+          emoji.className = "emoji";
+          emoji.textContent = animal.emoji;
+
+          var name = document.createElement("span");
+          name.className = "name";
+          name.textContent = animal.name;
+
+          var sign = document.createElement("span");
+          sign.className = "sign";
+          sign.textContent = animal.sign;
+
+          tile.appendChild(check);
+          tile.appendChild(emoji);
+          tile.appendChild(name);
+          tile.appendChild(sign);
+
+          tile.addEventListener("click", function () {
+            location.hash = animal.id;
+          });
+          tile.addEventListener("keydown", function (ev) {
+            if (ev.key === "Enter" || ev.key === " ") {
+              ev.preventDefault();
+              location.hash = animal.id;
+            }
+          });
+
+          grid.appendChild(tile);
+        });
+      }
+
+      function buildAnswerBlock(animal, box, alreadySolved) {
+        var question = document.createElement("div");
+        question.className = "question";
+        question.textContent = animal.question;
+        box.appendChild(question);
+
+        var form = document.createElement("form");
+        form.className = "answer-form";
+
+        var input = document.createElement("input");
+        input.type = "text";
+        input.className = "answer-input";
+        input.placeholder = "Type your answer";
+        input.setAttribute("aria-label", animal.question);
+        input.setAttribute("autocomplete", "off");
+        input.setAttribute("autocapitalize", "off");
+        input.setAttribute("autocorrect", "off");
+        input.setAttribute("spellcheck", "false");
+
+        var submit = document.createElement("button");
+        submit.type = "submit";
+        submit.className = "submit-btn";
+        submit.textContent = "Submit";
+
+        form.appendChild(input);
+        form.appendChild(submit);
+        box.appendChild(form);
+
+        var feedback = document.createElement("div");
+        feedback.className = "feedback";
+        box.appendChild(feedback);
+
+        var reveal = document.createElement("div");
+        reveal.className = "reveal";
+        reveal.textContent = animal.reveal;
+        reveal.style.display = "none";
+        box.appendChild(reveal);
+
+        function revealAnswer() {
+          question.style.display = "none";
+          form.style.display = "none";
+          feedback.style.display = "none";
+          reveal.style.display = "block";
+        }
+
+        if (alreadySolved) {
+          revealAnswer();
+        }
+
+        form.addEventListener("submit", function (ev) {
+          ev.preventDefault();
+          var guess = input.value.trim().toLowerCase();
+          if (guess === String(animal.answer).trim().toLowerCase()) {
+            revealAnswer();
+            state.solved[animal.id] = true;
+            saveState();
+          } else {
+            feedback.className = "feedback wrong";
+            feedback.textContent = "Not quite \u2014 try again!";
+          }
+        });
+      }
+
+      var CAT_IMAGES = [
+        "images/rooster-hint/1.png",
+        "images/rooster-hint/2.png",
+        "images/rooster-hint/3.png",
+        "images/rooster-hint/4.png",
+        "images/rooster-hint/5.png",
+        "images/rooster-hint/6.png",
+        "images/rooster-hint/7.png",
+        "images/rooster-hint/8.png",
+        "images/rooster-hint/9.png",
+      ];
+
+      function buildSlider(animal, box, alreadySolved) {
+        var size = 3;
+        var tiles = [];
+
+        var status = document.createElement("p");
+        status.className = "slider-status";
+        status.textContent =
+          "Slide the tiles to put the numbers 1 to 8 in order.";
+        box.appendChild(status);
+
+        var grid = document.createElement("div");
+        grid.className = "slider-grid";
+        box.appendChild(grid);
+
+        var reveal = document.createElement("div");
+        reveal.className = "reveal";
+        reveal.textContent = animal.reveal;
+        reveal.style.display = "none";
+        box.appendChild(reveal);
+
+        function neighborsOf(idx) {
+          var r = Math.floor(idx / size);
+          var c = idx % size;
+          var res = [];
+          if (r > 0) res.push(idx - size);
+          if (r < size - 1) res.push(idx + size);
+          if (c > 0) res.push(idx - 1);
+          if (c < size - 1) res.push(idx + 1);
+          return res;
+        }
+
+        function isSolved() {
+          for (var i = 0; i < size * size - 1; i++) {
+            if (tiles[i] !== i + 1) return false;
+          }
+          return tiles[size * size - 1] === 0;
+        }
+
+        function finish() {
+          status.style.display = "none";
+          grid.style.display = "none";
+          reveal.style.display = "block";
+          state.solved[animal.id] = true;
+          saveState();
+        }
+
+        function render() {
+          grid.innerHTML = "";
+          tiles.forEach(function (val, idx) {
+            var cell = document.createElement("div");
+            cell.className = "slider-cell";
+            cell.style.backgroundImage = "url('" + CAT_IMAGES[idx] + "')";
+            if (val !== 0) {
+              var b = document.createElement("button");
+              b.type = "button";
+              b.className = "slider-tile";
+              b.textContent = String(val);
+              b.addEventListener("click", function () {
+                tryMove(idx);
+              });
+              cell.appendChild(b);
+            }
+            grid.appendChild(cell);
+          });
+        }
+
+        function tryMove(idx) {
+          var blank = tiles.indexOf(0);
+          var r1 = Math.floor(idx / size);
+          var c1 = idx % size;
+          var r2 = Math.floor(blank / size);
+          var c2 = blank % size;
+          if (Math.abs(r1 - r2) + Math.abs(c1 - c2) !== 1) return;
+          tiles[blank] = tiles[idx];
+          tiles[idx] = 0;
+          render();
+          if (isSolved()) finish();
+        }
+
+        function shuffle() {
+          tiles = [];
+          for (var i = 1; i < size * size; i++) tiles.push(i);
+          tiles.push(0);
+          var blank = size * size - 1;
+          var last = -1;
+          for (var n = 0; n < 250; n++) {
+            var options = neighborsOf(blank).filter(function (x) {
+              return x !== last;
+            });
+            var pick = options[Math.floor(Math.random() * options.length)];
+            tiles[blank] = tiles[pick];
+            tiles[pick] = 0;
+            last = blank;
+            blank = pick;
+          }
+          if (isSolved()) shuffle();
+        }
+
+        if (alreadySolved) {
+          finish();
+        } else {
+          shuffle();
+          render();
+        }
+      }
+
+      var CAT_SVG =
+        '<svg viewBox="0 0 240 175" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Tuxedo cat">' +
+        '<path d="M62 150 C20 152 8 104 42 84" fill="none" stroke="#23211f" stroke-width="17" stroke-linecap="round"/>' +
+        '<path d="M48 92 C42 88 40 82 42 76" fill="none" stroke="#ffffff" stroke-width="17" stroke-linecap="round"/>' +
+        '<path d="M70 170 C66 126 82 104 120 104 C158 104 174 126 170 170 Z" fill="#23211f" stroke="#23211f" stroke-width="4" stroke-linejoin="round"/>' +
+        '<path d="M104 170 C100 140 110 118 120 118 C130 118 140 140 136 170 Z" fill="#ffffff" stroke="#23211f" stroke-width="3"/>' +
+        '<ellipse cx="98" cy="168" rx="15" ry="9" fill="#ffffff" stroke="#23211f" stroke-width="3"/>' +
+        '<ellipse cx="142" cy="168" rx="15" ry="9" fill="#ffffff" stroke="#23211f" stroke-width="3"/>' +
+        '<path d="M84 40 L74 4 L108 30 Z" fill="#23211f" stroke="#23211f" stroke-width="4" stroke-linejoin="round"/>' +
+        '<path d="M156 40 L166 4 L132 30 Z" fill="#23211f" stroke="#23211f" stroke-width="4" stroke-linejoin="round"/>' +
+        '<path d="M88 34 L82 14 L100 30 Z" fill="#f2a0b5"/>' +
+        '<path d="M152 34 L158 14 L140 30 Z" fill="#f2a0b5"/>' +
+        '<circle cx="120" cy="66" r="46" fill="#23211f" stroke="#23211f" stroke-width="4"/>' +
+        '<ellipse cx="120" cy="80" rx="26" ry="19" fill="#ffffff" stroke="#23211f" stroke-width="3"/>' +
+        '<ellipse cx="104" cy="64" rx="8" ry="11" fill="#b8e04a" stroke="#23211f" stroke-width="2"/>' +
+        '<ellipse cx="136" cy="64" rx="8" ry="11" fill="#b8e04a" stroke="#23211f" stroke-width="2"/>' +
+        '<ellipse cx="104" cy="65" rx="3" ry="6" fill="#23211f"/>' +
+        '<ellipse cx="136" cy="65" rx="3" ry="6" fill="#23211f"/>' +
+        '<circle cx="102" cy="61" r="1.8" fill="#ffffff"/>' +
+        '<circle cx="134" cy="61" r="1.8" fill="#ffffff"/>' +
+        '<path d="M120 76 l-6 5 h12 z" fill="#f2a0b5" stroke="#23211f" stroke-width="1.5" stroke-linejoin="round"/>' +
+        '<path d="M120 81 v4 M120 85 C116 90 111 90 109 87 M120 85 C124 90 129 90 131 87" fill="none" stroke="#23211f" stroke-width="2" stroke-linecap="round"/>' +
+        '<path d="M100 78 L72 73 M100 85 L70 87 M140 78 L168 73 M140 85 L170 87" fill="none" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round"/>' +
+        '<path d="M96 104 C106 112 134 112 144 104" fill="none" stroke="#e23b3b" stroke-width="7" stroke-linecap="round"/>' +
+        '<circle cx="120" cy="112" r="7" fill="#ffd700" stroke="#23211f" stroke-width="2"/>' +
+        "</svg>";
+
+      function buildScratch(animal, box, alreadySolved) {
+        var ticket = document.createElement("div");
+        ticket.className = "scratch-ticket";
+
+        var main = document.createElement("div");
+        main.className = "ticket-main";
+        ticket.appendChild(main);
+
+        var rail = document.createElement("div");
+        rail.className = "ticket-rail";
+        var railNumber = document.createElement("div");
+        railNumber.className = "rail-number";
+        railNumber.textContent = "3069-006645-116-0";
+        var railBars = document.createElement("div");
+        railBars.className = "rail-barcode";
+        rail.appendChild(railNumber);
+        rail.appendChild(railBars);
+        ticket.appendChild(rail);
+
+        var top = document.createElement("div");
+        top.className = "ticket-top";
+        top.innerHTML =
+          '<div class="ticket-logo"><span class="logo-rainbow"></span>INSTANT<br>SCRATCH-ITS</div>' +
+          '<div class="ticket-prize"><span class="prize-line">TOP PRIZES OF</span><span class="prize-amount">CANDY!</span></div>' +
+          '<div class="ticket-price"><span class="price-badge">$1</span><span class="ticket-number">3069</span></div>';
+        main.appendChild(top);
+
+        var title = document.createElement("div");
+        title.className = "ticket-title";
+        title.textContent = "LUCKY CAT";
+        main.appendChild(title);
+
+        var body = document.createElement("div");
+        body.className = "ticket-body";
+        main.appendChild(body);
+
+        var gameLabel = document.createElement("span");
+        gameLabel.className = "game-label";
+        gameLabel.textContent = "GAME PANEL";
+        body.appendChild(gameLabel);
+
+        var art = document.createElement("div");
+        art.className = "ticket-art";
+        art.innerHTML = CAT_SVG;
+        body.appendChild(art);
+
+        var pad = document.createElement("div");
+        pad.className = "scratch-pad";
+        body.appendChild(pad);
+
+        var img = document.createElement("img");
+        img.className = "scratch-img";
+        img.src = animal.image;
+        img.alt = animal.name + " clue";
+        pad.appendChild(img);
+
+        var canvas = document.createElement("canvas");
+        canvas.className = "scratch-canvas";
+        pad.appendChild(canvas);
+
+        var foot = document.createElement("div");
+        foot.className = "ticket-foot";
+        foot.innerHTML =
+          '<div class="foot-left">See back for<br>How to Play &amp;<br>Conditions.</div>' +
+          '<div class="foot-right">Reveal a <span class="foot-symbol">&#9733;</span> to win the corresponding prize.</div>';
+        main.appendChild(foot);
+
+        box.appendChild(ticket);
+
+        if (alreadySolved) {
+          canvas.remove();
+          return;
+        }
+
+        var ctx = canvas.getContext("2d");
+        var dpr = Math.min(window.devicePixelRatio || 1, 2);
+        var ready = false;
+        var drawing = false;
+        var lastX = 0;
+        var lastY = 0;
+        var w = 0;
+        var h = 0;
+
+        function setup() {
+          if (ready) return;
+          var rect = pad.getBoundingClientRect();
+          w = Math.round(rect.width);
+          h = Math.round(rect.height);
+          if (!w || !h) return;
+          canvas.width = Math.round(w * dpr);
+          canvas.height = Math.round(h * dpr);
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+          var grad = ctx.createLinearGradient(0, 0, w, h);
+          grad.addColorStop(0, "#cfcfcf");
+          grad.addColorStop(0.5, "#a6a6a6");
+          grad.addColorStop(1, "#d6d6d6");
+          ctx.fillStyle = grad;
+          ctx.fillRect(0, 0, w, h);
+          ready = true;
+        }
+
+        function getPos(ev) {
+          var rect = canvas.getBoundingClientRect();
+          return { x: ev.clientX - rect.left, y: ev.clientY - rect.top };
+        }
+
+        function drawAt(x, y) {
+          ctx.globalCompositeOperation = "destination-out";
+          ctx.beginPath();
+          ctx.arc(x, y, Math.max(14, w * 0.06), 0, Math.PI * 2);
+          ctx.fill();
+          ctx.globalCompositeOperation = "source-over";
+        }
+
+        function drawLine(x1, y1, x2, y2) {
+          ctx.globalCompositeOperation = "destination-out";
+          ctx.lineWidth = Math.max(28, w * 0.12);
+          ctx.lineCap = "round";
+          ctx.lineJoin = "round";
+          ctx.beginPath();
+          ctx.moveTo(x1, y1);
+          ctx.lineTo(x2, y2);
+          ctx.stroke();
+          ctx.globalCompositeOperation = "source-over";
+        }
+
+        function onDown(ev) {
+          drawing = true;
+          var p = getPos(ev);
+          lastX = p.x;
+          lastY = p.y;
+          drawAt(p.x, p.y);
+          if (canvas.setPointerCapture) {
+            try {
+              canvas.setPointerCapture(ev.pointerId);
+            } catch (e) {}
+          }
+          ev.preventDefault();
+        }
+
+        function onMove(ev) {
+          if (!drawing) return;
+          var p = getPos(ev);
+          drawLine(lastX, lastY, p.x, p.y);
+          lastX = p.x;
+          lastY = p.y;
+          ev.preventDefault();
+        }
+
+        function onUp() {
+          drawing = false;
+        }
+
+        canvas.addEventListener("pointerdown", onDown);
+        canvas.addEventListener("pointermove", onMove);
+        canvas.addEventListener("pointerup", onUp);
+        canvas.addEventListener("pointercancel", onUp);
+        canvas.addEventListener("pointerleave", onUp);
+
+        if (img.complete && img.naturalWidth) {
+          setup();
+        } else {
+          img.addEventListener("load", setup);
+          img.addEventListener("error", setup);
+        }
+        requestAnimationFrame(function () {
+          if (!ready) setup();
+        });
+      }
+
+      var FUDGES = [
+        { name: "Blackie", image: "images/dog-hint/blackie.png" },
+        { name: "Chip", image: "images/dog-hint/chip.png" },
+        { name: "Evie", image: "images/dog-hint/evie.png" },
+        { name: "Fudge", image: "images/dog-hint/fudge.png" },
+        { name: "Jasper", image: "images/dog-hint/jasper.png" },
+        { name: "Kevin", image: "images/dog-hint/kevin.png" },
+        { name: "Lychee", image: "images/dog-hint/lychee.png" },
+        { name: "Max", image: "images/dog-hint/max.png" },
+        { name: "Meimei", image: "images/dog-hint/meimei.png" },
+        { name: "Mimi", image: "images/dog-hint/mimi.png" },
+        { name: "Momo", image: "images/dog-hint/momo.png" },
+        { name: "Mushu", image: "images/dog-hint/mushu.png" },
+        { name: "Nico", image: "images/dog-hint/nico.png" },
+        { name: "Oreo", image: "images/dog-hint/oreo.png" },
+        { name: "Oscar", image: "images/dog-hint/oscar.png" },
+        { name: "Sesame", image: "images/dog-hint/sesame.png" },
+        { name: "Sock", image: "images/dog-hint/sock.png" },
+        { name: "Zhima", image: "images/dog-hint/zhima.png" },
+      ];
+      var FUDGE_FIRST = 10;
+      var FUDGE_BONUS = 15;
+
+      function normName(s) {
+        return String(s).toLowerCase().replace(/\s+/g, "");
+      }
+
+      function updateBonusButton() {
+        var btn = document.getElementById("bonusBtn");
+        if (!btn) return;
+        btn.style.display =
+          state.fudge.length >= FUDGE_BONUS ? "block" : "none";
+      }
+
+      function completeAllPuzzles() {
+        ZODIAC.forEach(function (a) {
+          state.done[a.id] = true;
+          state.solved[a.id] = true;
+        });
+        state.fudge = FUDGES.map(function (f) {
+          return f.name;
+        });
+        saveState();
+        renderGrid();
+        updateBonusButton();
+        route();
+      }
+
+      function resetEverything() {
+        state = { done: {}, solved: {}, fudge: [] };
+        saveState();
+        renderGrid();
+        updateBonusButton();
+        route();
+      }
+
+      var titleTaps = [];
+      var completeFiredAt = 0;
+
+      function onTitleTap() {
+        var now = Date.now();
+        titleTaps.push(now);
+        titleTaps = titleTaps.filter(function (t) {
+          return now - t < 7000;
+        });
+        var n = titleTaps.length;
+        if (n >= 15) {
+          titleTaps = [];
+          completeFiredAt = 0;
+          resetEverything();
+        } else if (n >= 10 && now - completeFiredAt > 7000) {
+          completeFiredAt = now;
+          completeAllPuzzles();
+        }
+      }
+
+      function buildFudge(animal, box) {
+        var found = state.fudge.filter(function (n) {
+          return FUDGES.some(function (f) {
+            return f.name === n;
+          });
+        });
+
+        var hint = document.createElement("div");
+        hint.className = "fudge-hint";
+        box.appendChild(hint);
+
+        var progress = document.createElement("div");
+        progress.className = "fudge-progress";
+        box.appendChild(progress);
+
+        var form = document.createElement("form");
+        form.className = "answer-form";
+        var input = document.createElement("input");
+        input.type = "text";
+        input.className = "answer-input";
+        input.placeholder = "Type a name";
+        input.setAttribute("aria-label", "Name a fudge");
+        input.setAttribute("autocomplete", "off");
+        input.setAttribute("autocapitalize", "off");
+        input.setAttribute("autocorrect", "off");
+        input.setAttribute("spellcheck", "false");
+        var submit = document.createElement("button");
+        submit.type = "submit";
+        submit.className = "submit-btn";
+        submit.textContent = "Submit";
+        form.appendChild(input);
+        form.appendChild(submit);
+        box.appendChild(form);
+
+        var feedback = document.createElement("div");
+        feedback.className = "feedback";
+        box.appendChild(feedback);
+
+        var bonusText = document.createElement("div");
+        bonusText.className = "fudge-bonus";
+        box.appendChild(bonusText);
+
+        var gallery = document.createElement("div");
+        gallery.className = "fudge-gallery";
+        box.appendChild(gallery);
+
+        function addCard(fudge) {
+          var card = document.createElement("div");
+          card.className = "fudge-card";
+          var im = document.createElement("img");
+          im.src = fudge.image;
+          im.alt = fudge.name;
+          var nm = document.createElement("div");
+          nm.className = "fudge-name";
+          nm.textContent = fudge.name;
+          card.appendChild(im);
+          card.appendChild(nm);
+          gallery.appendChild(card);
+        }
+
+        function refresh() {
+          var n = found.length;
+          hint.textContent = "I heard you're a fudge fan? Name 10 fudges";
+          progress.textContent = n + " named";
+
+          bonusText.innerHTML = "";
+          if (n >= FUDGE_FIRST) {
+            var ans = document.createElement("div");
+            ans.className = "fudge-answer";
+            ans.textContent = "Clean fudge fountain";
+            bonusText.appendChild(ans);
+
+            var more = document.createElement("div");
+            more.className = "fudge-bonus";
+            more.textContent =
+              n < FUDGE_BONUS
+                ? "Name 5 more fudges for a bonus"
+                : "Bonus unlocked";
+            bonusText.appendChild(more);
+          }
+          updateBonusButton();
+        }
+
+        gallery.innerHTML = "";
+        found.forEach(function (name) {
+          addCard(
+            FUDGES.filter(function (f) {
+              return f.name === name;
+            })[0],
+          );
+        });
+        refresh();
+
+        form.addEventListener("submit", function (ev) {
+          ev.preventDefault();
+          var guess = normName(input.value);
+          if (!guess) return;
+          var match = FUDGES.filter(function (f) {
+            return normName(f.name) === guess;
+          })[0];
+          if (!match) {
+            feedback.className = "feedback wrong";
+            feedback.textContent = "Not quite \u2014 try again!";
+            return;
+          }
+          if (found.indexOf(match.name) !== -1) {
+            feedback.className = "feedback wrong";
+            feedback.textContent = "Already named!";
+            input.value = "";
+            return;
+          }
+          found.push(match.name);
+          state.fudge = found;
+          saveState();
+          input.value = "";
+          feedback.className = "feedback";
+          feedback.textContent = "";
+          addCard(match);
+          refresh();
+        });
+      }
+
+      function renderDetail(id) {
+        var animal = ZODIAC.filter(function (a) {
+          return a.id === id;
+        })[0];
+        if (!animal) return;
+
+        document.getElementById("detailEmoji").textContent = animal.emoji;
+        document.getElementById("detailTitle").textContent = animal.name;
+
+        var box = document.getElementById("contentBox");
+        box.innerHTML = "";
+        box.classList.remove("empty");
+
+        var hasContent = false;
+
+        if (animal.content && animal.content.trim() !== "") {
+          var text = document.createElement("div");
+          text.className = "content-text";
+          text.textContent = animal.content;
+          box.appendChild(text);
+          hasContent = true;
+        }
+
+        if (animal.clueEmoji) {
+          var bigEmoji = document.createElement("div");
+          bigEmoji.className = "clue-emoji";
+          bigEmoji.textContent = animal.clueEmoji;
+          box.appendChild(bigEmoji);
+          hasContent = true;
+        }
+
+        if (animal.image && !animal.scratch) {
+          var img = document.createElement("img");
+          img.className = "clue-image";
+          img.src = animal.image;
+          img.alt = animal.name + " clue";
+          box.appendChild(img);
+          hasContent = true;
+        }
+
+        if (animal.scratch) {
+          buildScratch(animal, box, !!state.solved[animal.id]);
+          hasContent = true;
+        }
+
+        if (animal.question && animal.answer) {
+          buildAnswerBlock(animal, box, !!state.solved[animal.id]);
+          hasContent = true;
+        } else if (animal.question) {
+          var prompt = document.createElement("div");
+          prompt.className = "question";
+          prompt.textContent = animal.question;
+          box.appendChild(prompt);
+          hasContent = true;
+        }
+
+        if (animal.puzzle === "slider") {
+          buildSlider(animal, box, !!state.solved[animal.id]);
+          hasContent = true;
+        }
+
+        if (animal.fudge) {
+          buildFudge(animal, box);
+          hasContent = true;
+        }
+
+        if (!hasContent) {
+          box.classList.add("empty");
+          box.textContent = "Coming soon\u2026";
+        }
+      }
+
+      function showView(name) {
+        document
+          .getElementById("mainView")
+          .classList.toggle("active", name === "main");
+        document
+          .getElementById("detailView")
+          .classList.toggle("active", name === "detail");
+        window.scrollTo(0, 0);
+      }
+
+      function renderBonus() {
+        document.getElementById("detailEmoji").textContent = "\uD83C\uDF81";
+        document.getElementById("detailTitle").textContent = "Bonus";
+        var box = document.getElementById("contentBox");
+        box.innerHTML = "";
+        box.classList.remove("empty");
+        var text = document.createElement("div");
+        text.className = "content-text";
+        text.textContent = "Check mailbox (for real this time)";
+        box.appendChild(text);
+      }
+
+      function route() {
+        var id = (location.hash || "").replace("#", "");
+        if (id === "bonus") {
+          renderBonus();
+          showView("detail");
+          return;
+        }
+        var exists = ZODIAC.some(function (a) {
+          return a.id === id;
+        });
+        if (exists) {
+          renderDetail(id);
+          showView("detail");
+        } else {
+          showView("main");
+        }
+      }
+
+      document.getElementById("backBtn").addEventListener("click", function () {
+        if (location.hash) {
+          history.back();
+        } else {
+          location.hash = "";
+        }
+      });
+
+      window.addEventListener("hashchange", route);
+
+      document.querySelector("h1").addEventListener("click", onTitleTap);
+
+      document
+        .getElementById("bonusBtn")
+        .addEventListener("click", function () {
+          location.hash = "bonus";
+        });
+
+      loadState();
+      renderGrid();
+      updateBonusButton();
+      route();
+    </script>
+  </body>
+</html>
